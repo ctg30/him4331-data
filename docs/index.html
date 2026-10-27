@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HIM 4331 Capstone Guide</title>
+<meta name="description" content="Week-by-week guide for the HIM 4331 Healthcare Data Story capstone: one short Colab notebook per module, with export and submission steps.">
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --ink:#1b1f2a; --muted:#5b6170; --line:#e3e6ee;
+    --brand:#2b4c9b; --brand-ink:#ffffff; --soft:#e9eefb; --ok:#1f8a4c; --ok-soft:#e4f5ea;
+    --warn:#9a6b00; --warn-soft:#fff5d6; --note:#7a3e9d; --note-soft:#f3e9fa; --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+    --bg:#11141c; --card:#1a1f2b; --ink:#eef0f6; --muted:#a3a9ba; --line:#2b3242;
+    --brand:#7c9ff0; --brand-ink:#0d1222; --soft:#1f2a45; --ok:#5cd38a; --ok-soft:#163324;
+    --warn:#f2c14e; --warn-soft:#3a2f10; --note:#c99af0; --note-soft:#2d1f3a;
+  }}
+  :root[data-theme="dark"]{
+    --bg:#11141c; --card:#1a1f2b; --ink:#eef0f6; --muted:#a3a9ba; --line:#2b3242;
+    --brand:#7c9ff0; --brand-ink:#0d1222; --soft:#1f2a45; --ok:#5cd38a; --ok-soft:#163324;
+    --warn:#f2c14e; --warn-soft:#3a2f10; --note:#c99af0; --note-soft:#2d1f3a;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  a{color:var(--brand)}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px 64px}
+  header.top{background:var(--brand);color:var(--brand-ink);padding:28px 0 24px}
+  header.top .wrap{padding-bottom:0}
+  header.top h1{margin:0 0 6px;font-size:clamp(24px,4vw,34px);line-height:1.15}
+  header.top p{margin:0;opacity:.92;max-width:60ch}
+  nav.jump{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+  nav.jump a{background:rgba(255,255,255,.16);color:var(--brand-ink);text-decoration:none;padding:6px 12px;border-radius:999px;font-size:14px;font-weight:600}
+  :root[data-theme="dark"] nav.jump a, :root:not([data-theme="light"]) nav.jump a{}
+  nav.jump a:hover{background:rgba(255,255,255,.28)}
+  section{margin-top:28px}
+  h2{font-size:22px;margin:0 0 12px}
+  h3{font-size:17px;margin:18px 0 6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px}
+  .notice{border-left:5px solid var(--note);background:var(--note-soft);padding:14px 18px;border-radius:10px;margin-top:16px}
+  .notice strong{color:var(--note)}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0}
+  .steps li{counter-increment:s;position:relative;padding:8px 0 8px 44px;border-top:1px solid var(--line)}
+  .steps li:first-child{border-top:0}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:9px;width:30px;height:30px;border-radius:50%;background:var(--soft);color:var(--brand);font-weight:700;display:grid;place-items:center}
+  code,kbd{background:var(--soft);padding:1px 6px;border-radius:6px;font-size:.93em;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .progress{display:flex;align-items:center;gap:14px;margin:8px 0 4px;flex-wrap:wrap}
+  .bar{flex:1;min-width:160px;height:12px;background:var(--line);border-radius:999px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+  .modules{display:grid;gap:14px;margin-top:14px}
+  .mod{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .mod.done{border-color:var(--ok)}
+  .mod .head{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:16px 18px;cursor:pointer}
+  .mod .head:hover{background:var(--soft)}
+  .mod .num{width:54px;height:54px;border-radius:12px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-weight:800;line-height:1.05;text-align:center;font-size:10px;letter-spacing:.02em}
+  .mod .num b{font-size:20px;display:block}
+  .mod.done .num{background:var(--ok)}
+  .mod .title{margin:0;font-size:18px}
+  .mod .sub{color:var(--muted);font-size:14px;margin:2px 0 0}
+  .mod .pts{font-weight:700;color:var(--muted);font-size:14px;white-space:nowrap}
+  .mod .body{display:none;padding:0 18px 18px;border-top:1px solid var(--line)}
+  .mod.open .body{display:block}
+  .btnrow{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 4px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:var(--brand-ink);text-decoration:none;font-weight:700;padding:10px 16px;border-radius:10px;border:0;cursor:pointer;font-size:15px}
+  .btn.secondary{background:var(--soft);color:var(--brand)}
+  .btn.ok{background:var(--ok-soft);color:var(--ok)}
+  .tag{display:inline-block;background:var(--warn-soft);color:var(--warn);font-weight:700;font-size:12px;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle}
+  .checklist{list-style:none;padding:0;margin:8px 0}
+  .checklist li{padding:4px 0 4px 26px;position:relative}
+  .checklist li::before{content:"";position:absolute;left:2px;top:9px;width:14px;height:14px;border:2px solid var(--ok);border-radius:4px}
+  .tips{background:var(--soft);border-radius:10px;padding:12px 14px;margin:10px 0}
+  .tips p{margin:6px 0}
+  .done-toggle{display:flex;align-items:center;gap:10px;margin-top:14px;font-weight:600}
+  .done-toggle input{width:20px;height:20px}
+  details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0;background:var(--card)}
+  summary{cursor:pointer;font-weight:700}
+  table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:var(--soft)}
+  .muted{color:var(--muted)}
+  footer{margin-top:40px;color:var(--muted);font-size:14px}
+  @media (max-width:560px){ .mod .head{grid-template-columns:auto 1fr} .mod .pts{grid-column:2} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>🧬 HIM 4331 Capstone: Healthcare Data Story</h1>
+    <p>One short notebook per week. Open the one for your current module, fill in the yellow boxes, export the PDF, upload to Canvas. That's the whole routine.</p>
+    <nav class="jump">
+      <a href="#start">Start here</a>
+      <a href="#modules">My modules</a>
+      <a href="#export">Export a PDF</a>
+      <a href="#datasets">Dataset cheat sheet</a>
+      <a href="#help">Stuck?</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section id="start">
+  <h2>🚀 Start here (first time, about 5 minutes)</h2>
+  <div class="card">
+    <p><strong>You will not write any Python in this course.</strong> Every notebook already has the code written. You do two things: press ▶ to run a cell, and type words between quotation marks in the 🟨 TODO cells.</p>
+    <h3>What you need</h3>
+    <p>A Google account (your school one is fine) and the Chrome or Edge browser. Notebooks open in Google Colab, which is free and runs in the browser. Nothing to install.</p>
+    <h3>How every week works (same 5 steps, every module)</h3>
+    <ol class="steps">
+      <li><strong>Open this week's notebook</strong> from the module card below. It opens in Colab.</li>
+      <li><strong>Save your own copy:</strong> <code>File → Save a copy in Drive</code>. Rename it <code>HIM4331_M03.4_LastnameFirstname</code> (use that week's code). You cannot save into the original, so this step is required.</li>
+      <li><strong>Run cells top to bottom.</strong> Step 1 (setup), Step 2 (your project card), Step 3 (load data), then this week's 🟨 TODO cells. Watch for green ✅. A yellow 🟨 message tells you exactly what to fix.</li>
+      <li><strong>Run the 📤 Submission Block</strong> at the bottom. It prints everything that gets graded in one box.</li>
+      <li><strong>Export the PDF and upload</strong> to that week's Canvas assignment. <a href="#export">Steps here.</a></li>
+    </ol>
+    <h3>Your project card</h3>
+    <p>In Module 2 you choose a dataset, a research question, and a stakeholder. Every notebook after that starts with the same short "project card" (Step 2). You never re-type it from memory: the bottom of every submission block prints a box titled <strong>📋 YOUR PROJECT CARD FOR NEXT WEEK</strong> with the exact lines to paste into next week's Step 2. From Module 5 on those lines also include the data fix you chose in Module 4, so every notebook works on the same cleaned data. That's how each short notebook knows about your project without you scrolling through everything you did before.</p>
+    <h3>How the PDF is graded</h3>
+    <p>The submission block starts with a <strong>SELF-CHECK STATUS</strong> line: either "ALL CHECKS PASSED" or how many are not done, with each check listed. Below that are exactly the answers you typed and the output they produced. If the status line says all passed and your three sentences are real sentences, you're in good shape.</p>
+  </div>
+
+  <div class="notice" id="already-started">
+    <strong>Already started in the original long notebook?</strong> Nothing you did is wasted. Keep the PDF(s) you already submitted; those grades stand. For every module you have <em>not</em> submitted yet, use the short notebook from the card below instead of the long one. Open your Module 2 PDF (or the long notebook) and copy your name, dataset, research question, and stakeholder into the project card. The TODO boxes and the submission block are identical, so your instructor sees the same thing either way.
+  </div>
+</section>
+
+<section id="modules">
+  <h2>📘 My modules</h2>
+  <div class="progress card">
+    <span><strong id="progText">0 of 7 done</strong></span>
+    <div class="bar"><i id="progBar"></i></div>
+    <span class="muted">Checkboxes save in this browser only.</span>
+  </div>
+  <p class="muted">Click a module to expand it. Each card has the Open in Colab button, what you'll type, and the "you're done when" checklist.</p>
+  <div class="modules" id="modList"></div>
+</section>
+
+<section id="export">
+  <h2>📎 Export a PDF and submit (every week)</h2>
+  <div class="card">
+    <ol class="steps">
+      <li>Scroll to the 📤 Submission Block and confirm it printed with <strong>no 🟨 warnings</strong>. If you see one, fix that TODO cell, re-run it, then re-run the submission block.</li>
+      <li>In Colab: <code>File → Print</code> (or <kbd>Ctrl</kbd>+<kbd>P</kbd> on Windows, <kbd>Cmd</kbd>+<kbd>P</kbd> on Mac).</li>
+      <li>In the print window, set <strong>Destination</strong> to <strong>Save as PDF</strong>. Leave everything else alone. Click Save.</li>
+      <li>Name it <code>HIM4331_M03.4_LastnameFirstname.pdf</code> (use the current module's code).</li>
+      <li>Open the matching Canvas assignment (for example <strong>M03.4</strong> inside Module 3) and upload the PDF.</li>
+      <li>Open the PDF once before you upload. If charts are cut off or text is missing, go back to Colab, run <code>Runtime → Run all</code>, wait for every cell to finish, and print again.</li>
+    </ol>
+    <p class="muted">Tip: if Colab's Print gives you a blank page, scroll the notebook all the way to the bottom first so every output has rendered, then print.</p>
+  </div>
+</section>
+
+<section id="datasets">
+  <h2>🗂️ Dataset cheat sheet</h2>
+  <div class="card">
+    <p>Four datasets. Pick one in Module 2 and keep it all semester. Column names must be copied exactly (capitals, spaces, underscores).</p>
+    <details><summary>diabetes (safety pick: works for every week)</summary>
+      <p><strong>What it is:</strong> about 100,000 diabetic inpatient encounters at 130 US hospitals, 1999 to 2008.</p>
+      <p><strong>Number columns:</strong> <code>time_in_hospital</code>, <code>num_medications</code>, <code>num_lab_procedures</code>, <code>num_procedures</code>, <code>number_diagnoses</code></p>
+      <p><strong>Category columns:</strong> <code>age</code>, <code>race</code>, <code>gender</code>, <code>readmitted</code>, <code>insulin</code>, <code>change</code>, <code>diabetesMed</code>, <code>medical_specialty</code></p>
+      <p><strong>Watch out:</strong> missing values hide as <code>"?"</code> in <code>weight</code>, <code>medical_specialty</code>, <code>payer_code</code>, <code>race</code>. <code>readmitted</code> has three groups (<code>NO</code>, <code>&gt;30</code>, <code>&lt;30</code>); in Module 6 use <code>COMPARE_GROUPS = ["&lt;30", "NO"]</code> if your question is about 30-day readmission.</p>
+    </details>
+    <details><summary>hospitals</summary>
+      <p><strong>What it is:</strong> CMS Hospital General Information: one row per US hospital with ownership, type, and star rating.</p>
+      <p><strong>Category columns:</strong> <code>Hospital overall rating</code>, <code>Hospital Ownership</code>, <code>Hospital Type</code>, <code>Emergency Services</code>, <code>State</code></p>
+      <p><strong>Number columns:</strong> <code>Count of Facility MORT Measures</code>, <code>Count of READM Measures Worse</code></p>
+      <p><strong>Watch out:</strong> <code>Hospital overall rating</code> is stored as text because ~1,000 hospitals say <code>Not Available</code>. In Module 4 choose fix <code>to_number</code> on it if your question uses the rating as a number.</p>
+    </details>
+    <details><summary>readmissions</summary>
+      <p><strong>What it is:</strong> CMS Hospital Readmissions Reduction Program: six readmission measures per hospital with predicted, expected, and excess ratios.</p>
+      <p><strong>Number columns:</strong> <code>Excess Readmission Ratio</code>, <code>Number of Discharges</code>, <code>Predicted Readmission Rate</code>, <code>Expected Readmission Rate</code>, <code>Number of Readmissions</code></p>
+      <p><strong>Category columns:</strong> <code>Measure Name</code>, <code>State</code></p>
+      <p><strong>Watch out:</strong> many rows are blank (CMS suppresses small hospitals). In Module 4 choose <code>drop_rows</code> on the column your question needs, and build the yes/no column <code>MY_FLAG</code> (column <code>Excess Readmission Ratio</code>, cutoff <code>1.0</code>). You need MY_FLAG for Module 5.</p>
+    </details>
+    <details><summary>breaches</summary>
+      <p><strong>What it is:</strong> HHS Office for Civil Rights breach portal: reported health data breaches affecting 500 or more people.</p>
+      <p><strong>Number column:</strong> <code>Individuals Affected</code></p>
+      <p><strong>Category columns:</strong> <code>Type of Breach</code>, <code>Covered Entity Type</code>, <code>Business Associate Present</code>, <code>Location of Breached Information</code>, <code>State</code></p>
+      <p><strong>Watch out:</strong> 2 duplicate rows, and one breach affected 192.7 million people, which swamps every average. That is a real finding to write about, not a mistake.</p>
+    </details>
+  </div>
+</section>
+
+<section id="help">
+  <h2>🆘 Stuck?</h2>
+  <div class="card">
+    <h3>🟨 Yellow "NOT DONE YET"</h3>
+    <p>Not an error. The notebook is telling you what to fix in that one cell. Fix it, press ▶ again, watch it turn ✅.</p>
+    <h3>🟥 Red error text</h3>
+    <p>It can't hurt anything. You can't break the notebook or the data. Try <code>Runtime → Run all</code>, which re-runs everything in order. Nine times out of ten the cause is a cell above that hasn't been run yet.</p>
+    <h3>"This cell needs an earlier cell finished first"</h3>
+    <p>Exactly what it says: scroll up, finish the TODO cells above it in order (Step 2 before Step 3, and so on).</p>
+    <h3>Column name not found</h3>
+    <p>Copy it exactly from the column list printed in the notebook, including capital letters and spaces. <code>Hospital overall rating</code> is not <code>hospital_overall_rating</code>.</p>
+    <h3>Colab says the session disconnected</h3>
+    <p>Normal after idle time. Click Reconnect, then <code>Runtime → Run all</code>. Your typed answers are still there.</p>
+    <h3>Still stuck after 15 minutes?</h3>
+    <p>Screenshot the cell and the message and send it to your instructor. That isn't cheating, that's the process.</p>
+  </div>
+</section>
+
+<footer>HIM 4331 Healthcare Data Story capstone. Notebooks and data are hosted in the course GitHub repository.</footer>
+</div>
+
+<script>
+const REPO = "ctg30/him4331-data";
+const colab = f => `https://colab.research.google.com/github/${REPO}/blob/main/notebooks/${f}`;
+const MODS = [
+ {id:"m02", mod:2, code:"M02.4", title:"Claim Your Project", pts:5, nb:"M02_claim_your_project.ipynb",
+  week:"Pick your dataset, write YOUR research question, name YOUR stakeholder, and prove the data loads.",
+  type:["Your name, dataset, research question, and stakeholder (your project card).","A 3-sentence description of the dataset: what it captures, where it comes from, why your stakeholder cares."],
+  done:["Project card shows four green ✅","The explore cell shows shape, columns, and first rows","3-sentence description filled in","Submission block prints with no 🟨 warnings"],
+  tip:"Can't decide? Use the safety pick: dataset <code>diabetes</code>, question <em>Which diabetic patients are most likely to be readmitted within 30 days?</em>, stakeholder <em>Quality Director at a regional hospital</em>. It works for every week. Keep your PDF: you'll copy the project card from it every week."},
+ {id:"m03", mod:3, code:"M03.4", title:"Descriptive Statistics", pts:10, nb:"M03_descriptive_statistics.ipynb",
+  week:"Pick 3 variables that relate to YOUR research question, summarize them, chart them, and interpret.",
+  type:["Your project card (copy from your M02 PDF).","Three column names in <code>MY_THREE_VARS</code>.","A 3-sentence interpretation: what's typical, what stood out, what it means for your stakeholder."],
+  done:["All three variables found ✅","Stats and charts cells show output","Interpretation written","Submission block prints with no 🟨 warnings"],
+  tip:"Good picks: diabetes <code>time_in_hospital</code>, <code>age</code>, <code>readmitted</code>. hospitals <code>Hospital overall rating</code>, <code>Hospital Ownership</code>, <code>Count of READM Measures Worse</code>. readmissions <code>Excess Readmission Ratio</code>, <code>Measure Name</code>, <code>Number of Discharges</code>. breaches <code>Individuals Affected</code>, <code>Type of Breach</code>, <code>Covered Entity Type</code>."},
+ {id:"m04", mod:4, code:"M04.4", title:"Data Quality Check", pts:10, nb:"M04_data_quality_check.ipynb",
+  week:"Find one real data-quality issue, fix it by choosing from a menu, and defend your choice.",
+  type:["Your project card.","<code>M04_COLUMN</code> (the column with the issue) and <code>M04_FIX</code> (one of six menu choices).","A 3-sentence explanation: the issue, how it would distort your analysis, why your fix beats the alternatives.","Optional: the yes/no column <code>MY_FLAG</code> (required for readmissions)."],
+  done:["Detective cell shows a problem","Column and fix pass the self-check","BEFORE → AFTER cell proves the fix","Explanation written","Submission block prints with no 🟨 warnings"],
+  tip:"From Module 5 on, your project card also carries the column and fix you choose here (and MY_FLAG settings if you used them), so every later notebook uses the same cleaned data. Nothing to memorize: the submission block prints the exact lines to paste next week."},
+ {id:"m05", mod:5, code:"M05.4", title:"Categorical Inference", pts:15, nb:"M05_categorical_inference.ipynb",
+  week:"Test whether two categorical variables are associated (chi-square), in service of YOUR research question.",
+  type:["Your project card, now including your Module 4 column and fix (and MY_FLAG settings if used).","A one-sentence hypothesis, plus <code>CAT_VAR_A</code> and <code>CAT_VAR_B</code>.","A 3-sentence interpretation: the p-value in plain words, which groups stand out, what your stakeholder should do."],
+  done:["Hypothesis and both variables pass self-checks","Contingency table and chi-square output visible","Interpretation written with every [bracket] replaced","Submission block prints with no 🟨 warnings"],
+  tip:"Pairs that work: diabetes <code>age</code> × <code>readmitted</code>. hospitals <code>Hospital Ownership</code> × <code>Hospital overall rating</code>. readmissions <code>Measure Name</code> × <code>MY_FLAG</code>. breaches <code>Covered Entity Type</code> × <code>Type of Breach</code>."},
+ {id:"m06", mod:6, code:"M06.4", title:"Numerical Inference", pts:15, nb:"M06_numerical_inference.ipynb",
+  week:"Compare a numerical variable between two groups (t-test), again in service of YOUR question.",
+  type:["Your project card (with Module 4 lines).","A one-sentence question, <code>NUM_VAR</code> (a number column) and <code>GROUP_VAR</code> (a category column). Optional <code>COMPARE_GROUPS</code> to pick exactly which two groups.","A 3-sentence interpretation: the difference in real units, whether it is convincing and big enough to matter, what your stakeholder should do."],
+  done:["Question and variables pass self-checks","Group summary and t-test output visible","Interpretation written with every [bracket] replaced","Submission block prints with no 🟨 warnings"],
+  tip:"diabetes: <code>time_in_hospital</code> by <code>readmitted</code>, with <code>COMPARE_GROUPS = [\"&lt;30\", \"NO\"]</code> if your question is about 30-day readmission. hospitals: <code>Hospital overall rating</code> by <code>Hospital Ownership</code> needs <code>to_number</code> as your Module 4 fix."},
+ {id:"m07", mod:7, code:"M07.4", title:"Regression", pts:20, nb:"M07_regression.ipynb",
+  week:"Fit one regression that speaks to YOUR research question, then interpret ONE coefficient in plain English.",
+  type:["Your project card (with Module 4 lines).","The model menu: <code>MODEL_TYPE</code> (linear or logistic), <code>OUTCOME</code>, 1 to 3 <code>PREDICTORS</code>, and <code>OUTCOME_YES</code> for logistic.","The coefficient you are interpreting and a 3-sentence interpretation."],
+  done:["Model menu passes all self-checks","Model summary visible","Coefficient stated and interpretation written","Submission block prints with no 🟨 warnings"],
+  tip:"Number outcome → <code>linear</code>. Yes/no outcome → <code>logistic</code>. Ready-made: diabetes logistic, OUTCOME <code>readmitted</code>, OUTCOME_YES <code>&lt;30</code>, PREDICTORS <code>time_in_hospital</code> + <code>num_medications</code>."},
+ {id:"m08", mod:8, code:"M08.4", title:"Final Data Story", pts:25, nb:null,
+  week:"No new code. Assemble your six submission blocks into the final deliverable for your stakeholder.",
+  type:["Option A: a 2,000 to 3,000-word memo (PDF), or Option B: 8 to 10 narrated slides (MP4).","Outline: 1 the question and why your stakeholder cares (M02) → 2 the data (M02) → 3 what the data looks like (M03) → 4 how you made it trustworthy (M04) → 5 what's associated with what (M05) → 6 how big the differences are (M06) → 7 what predicts the outcome (M07) → 8 the \"so what\": what your stakeholder should do → 9 methods paragraph + APA citations → 10 AI Use Statement (required)."],
+  done:["All six earlier PDFs gathered (they are your appendix)","Memo or slides follow the 10-part outline","AI Use Statement included","Final PDF or MP4 uploaded to M08.4, plus your notebook PDFs as the appendix"],
+  tip:"Every section of your story is already written in a submission block. Open your six PDFs side by side and translate each block into a paragraph for your stakeholder. The grader is looking for the \"so what\", not more statistics."}
+];
+
+const list = document.getElementById("modList");
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem("him4331-progress") || "{}"); } catch(e) { saved = {}; }
+
+MODS.forEach(m => {
+  const el = document.createElement("article");
+  el.className = "mod" + (saved[m.id] ? " done" : "");
+  el.id = m.id;
+  el.innerHTML = `
+    <div class="head" role="button" tabindex="0" aria-expanded="false">
+      <div class="num">MODULE<b>${m.mod}</b></div>
+      <div><h3 class="title">${m.code}: ${m.title}</h3><p class="sub">${m.week}</p></div>
+      <div class="pts">${m.pts} pts</div>
+    </div>
+    <div class="body">
+      <div class="btnrow">
+        ${m.nb ? `<a class="btn" target="_blank" rel="noopener" href="${colab(m.nb)}">▶ Open Module ${m.mod} notebook in Colab</a>` : `<span class="btn secondary">No notebook this week: write the memo or slides</span>`}
+        <a class="btn secondary" href="#export">📎 How to export the PDF</a>
+      </div>
+      ${m.nb ? `<p class="muted">After it opens: <code>File → Save a copy in Drive</code>, rename it <code>HIM4331_${m.code}_LastnameFirstname</code>, then run cells top to bottom.</p>` : ""}
+      <h3>What you'll type</h3>
+      <ul>${m.type.map(t => `<li>${t}</li>`).join("")}</ul>
+      <div class="tips"><p>💡 ${m.tip}</p></div>
+      <h3>You're done when</h3>
+      <ul class="checklist">${m.done.map(t => `<li>${t}</li>`).join("")}</ul>
+      <p><strong>Submit:</strong> upload your PDF${m.nb ? "" : " or MP4"} to the Canvas assignment named <strong>${m.code}</strong> inside Module ${m.mod}.</p>
+      <label class="done-toggle"><input type="checkbox" data-id="${m.id}" ${saved[m.id] ? "checked" : ""}> I submitted ${m.code}</label>
+    </div>`;
+  list.appendChild(el);
+  const head = el.querySelector(".head");
+  const toggle = () => { el.classList.toggle("open"); head.setAttribute("aria-expanded", el.classList.contains("open")); };
+  head.addEventListener("click", toggle);
+  head.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); } });
+  el.querySelector("input").addEventListener("change", e => {
+    saved[m.id] = e.target.checked;
+    try { localStorage.setItem("him4331-progress", JSON.stringify(saved)); } catch(err) {}
+    el.classList.toggle("done", e.target.checked);
+    updateProgress();
+  });
+});
+
+function updateProgress(){
+  const n = MODS.filter(m => saved[m.id]).length;
+  document.getElementById("progText").textContent = `${n} of ${MODS.length} done`;
+  document.getElementById("progBar").style.width = (100 * n / MODS.length) + "%";
+}
+updateProgress();
+
+function openFromHash(){
+  const id = location.hash.replace("#", "");
+  const el = id && document.getElementById(id);
+  if (el && el.classList.contains("mod")) { el.classList.add("open"); el.querySelector(".head").setAttribute("aria-expanded", "true"); }
+}
+window.addEventListener("hashchange", openFromHash);
+openFromHash();
+// First visit with nothing open: expand the first module not yet marked done.
+if (!location.hash) {
+  const next = MODS.find(m => !saved[m.id]);
+  if (next) document.getElementById(next.id).classList.add("open");
+}
+</script>
+</body>
+</html>
